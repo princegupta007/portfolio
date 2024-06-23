@@ -3,24 +3,31 @@ import { Container, Row } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import { AiOutlineDownload } from "react-icons/ai";
 
-import Particle from '../components/Particle'
-import pdf from "../assets/prince.pdf"
+import Particle from '../components/Particle';
+import pdf from "../assets/prince.pdf";
 
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-const resumeLink = `https://raw.githubusercontent.com/portfolio/main/src/assets/prince.pdf`
-
+const resumeLink = `https://raw.githubusercontent.com/princegupta007/portfolio/main/src/assets/prince.pdf`;
 
 const Resume = () => {
   const [width, setWidth] = useState(1200);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [numPages, setNumPages] = useState(null);
 
   useEffect(() => {
-    
     setWidth(window.innerWidth);
   }, []);
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
+
+  const goToPrevPage = () => setPageNumber(pageNumber - 1);
+  const goToNextPage = () => setPageNumber(pageNumber + 1);
 
   return (
     <div>
@@ -40,9 +47,32 @@ const Resume = () => {
         </Row>
 
         <Row className="resume">
-          <Document file={resumeLink} className="d-flex justify-content-center">
-            <Page pageNumber={1} scale={width > 786 ? 1.7 : 0.6} />
+          <Document
+            file={resumeLink}
+            onLoadSuccess={onDocumentLoadSuccess}
+            className="d-flex justify-content-center"
+          >
+            <Page pageNumber={pageNumber} scale={width > 786 ? 1.7 : 0.6} />
           </Document>
+        </Row>
+
+        <Row style={{ justifyContent: "center", position: "relative", marginBottom: "1em" }}>
+          <Button
+            variant="primary"
+            onClick={goToPrevPage}
+            disabled={pageNumber <= 1}
+            style={{ maxWidth: "100px", margin: "0 10px" }}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="primary"
+            onClick={goToNextPage}
+            disabled={pageNumber >= numPages}
+            style={{ maxWidth: "100px", margin: "0 10px" }}
+          >
+            Next
+          </Button>
         </Row>
 
         <Row style={{ justifyContent: "center", position: "relative" }}>
@@ -56,10 +86,9 @@ const Resume = () => {
             &nbsp;Download Resume
           </Button>
         </Row>
-        
       </Container>
     </div>
-  )
-}
+  );
+};
 
-export default Resume
+export default Resume;
